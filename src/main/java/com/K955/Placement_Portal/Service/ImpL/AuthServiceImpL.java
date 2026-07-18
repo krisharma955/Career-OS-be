@@ -125,11 +125,25 @@ public class AuthServiceImpL implements AuthService {
             throw new BadRequestException("Refresh Token has expired, please login again");
         }
 
-        User user = refreshToken.getUser();
+        System.out.println("Old Refresh Token: " +refreshToken);
 
+        User user = refreshToken.getUser();
         String accessToken = jwtUtil.generateAccessToken(user);
 
-        return new AuthResponse(accessToken, refreshToken.getToken(), user.getName(), user.getEmail(), user.getRole());
+        refreshTokenRepository.delete(refreshToken);
+        refreshTokenRepository.flush();
+
+        String newRefreshToken = jwtUtil.generateRefreshToken(user);
+        RefreshToken newRefreshTokenEntity = RefreshToken.builder()
+                .token(newRefreshToken)
+                .user(user)
+                .expiryDate(Instant.now().plusMillis(refreshTokenExpiration))
+                .build();
+        refreshTokenRepository.save(newRefreshTokenEntity);
+
+        System.out.println("New Refresh Token: " +newRefreshToken);
+
+        return new AuthResponse(accessToken, newRefreshToken, user.getName(), user.getEmail(), user.getRole());
     }
 
     @Override
