@@ -3,9 +3,9 @@ spring:
     name: Placement-Portal
 
   datasource:
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: ${DB_URL:jdbc:postgresql://localhost:6000/testDB}
+    username: ${DB_USERNAME:user}
+    password: ${DB_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -28,14 +28,14 @@ spring:
           temperature: 0.3
 
 jwt:
-  secret-key: ${JWT_SECRET}
+  secret-key: ${JWT_SECRET:dhewbd3wyuiuydauwdghjswxgzvjsbckhweiyq3gwifeauhcwgxsjc jd}
   expiration: 86400000
   refresh-token:
     expiration: 604800000
 
 app:
   file:
-    upload-dir: ${FILE_UPLOAD_DIR}
+    upload-dir: ${FILE_UPLOAD_DIR:uploads/resumes}
 
   servlet:
     multipart:
