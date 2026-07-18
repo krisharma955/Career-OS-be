@@ -6,7 +6,7 @@
 <img src="https://img.shields.io/badge/Java-21-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white"/>
 <img src="https://img.shields.io/badge/Railway-Deployed-0B0D0E?style=for-the-badge&logo=railway&logoColor=white"/>
 
-# 🎓 SmartPlacement Portal
+# 🎓 Career-OS
 
 ### *AI-Powered Campus Placement Management System*
 
@@ -20,7 +20,7 @@ A production-grade backend for end-to-end campus recruitment — built with Spri
 
 ## 📌 Overview
 
-SmartPlacement Portal is a full-stack placement management backend that connects **students**, **companies**, and **admins** through a structured hiring pipeline. It features secure JWT-based auth with refresh token rotation, full CRUD for job postings and applications, resume management, and an **AI-powered ATS scoring engine** using Spring AI + OpenRouter (GPT-4o-mini).
+CareerOS is a full-stack placement management backend that connects **students**, **companies**, and **admins** through a structured hiring pipeline. It features secure JWT-based auth with refresh token rotation, full CRUD for job postings and applications, resume management, and an **AI-powered ATS scoring engine** using Spring AI + OpenRouter (GPT-4o-mini).
 
 Built to demonstrate real-world backend engineering — not a tutorial project.
 
