@@ -119,13 +119,11 @@ public class AuthServiceImpL implements AuthService {
     @Override
     public AuthResponse refreshToken(RefreshTokenRequest request) {
         RefreshToken refreshToken = refreshTokenRepository.findByToken(request.token())
-                .orElseThrow(() -> new ResourceNotFoundException("RefreshToken", request.token()));
+                .orElseThrow(() -> new BadRequestException("Refresh Token not found!"));
 
         if(refreshToken.getExpiryDate().isBefore(Instant.now())) {
             throw new BadRequestException("Refresh Token has expired, please login again");
         }
-
-        System.out.println("Old Refresh Token: " +refreshToken);
 
         User user = refreshToken.getUser();
         String accessToken = jwtUtil.generateAccessToken(user);
@@ -140,8 +138,6 @@ public class AuthServiceImpL implements AuthService {
                 .expiryDate(Instant.now().plusMillis(refreshTokenExpiration))
                 .build();
         refreshTokenRepository.save(newRefreshTokenEntity);
-
-        System.out.println("New Refresh Token: " +newRefreshToken);
 
         return new AuthResponse(accessToken, newRefreshToken, user.getName(), user.getEmail(), user.getRole());
     }
