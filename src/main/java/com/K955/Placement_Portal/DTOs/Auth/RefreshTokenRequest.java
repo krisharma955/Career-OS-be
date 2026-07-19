@@ -9,21 +9,7 @@ import jakarta.validation.constraints.Size;
 public record RefreshTokenRequest(
 
         @NotBlank
-        @Size(min = 3, max = 30)
-        String name,
+        String token
 
-        @Email
-        @NotBlank
-        String email,
-
-        @NotBlank
-        String token,
-
-        @NotBlank
-        @Size(min = 4, max = 50)
-        String password,
-
-        @NotNull
-        Role role
 ) {
 }
