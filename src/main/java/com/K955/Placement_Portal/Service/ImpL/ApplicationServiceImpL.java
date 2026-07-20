@@ -5,13 +5,17 @@ import com.K955.Placement_Portal.DTOs.Application.UpdateApplicationStatusRequest
 import com.K955.Placement_Portal.Entity.Application;
 import com.K955.Placement_Portal.Entity.JobPosting;
 import com.K955.Placement_Portal.Entity.Student;
+import com.K955.Placement_Portal.Entity.User;
 import com.K955.Placement_Portal.Enums.JobPostingStatus;
+import com.K955.Placement_Portal.Enums.Role;
 import com.K955.Placement_Portal.Exceptions.BadRequestException;
 import com.K955.Placement_Portal.Exceptions.ResourceNotFoundException;
 import com.K955.Placement_Portal.Mapper.ApplicationMapper;
 import com.K955.Placement_Portal.Repository.ApplicationRepository;
 import com.K955.Placement_Portal.Repository.JobPostingRepository;
 import com.K955.Placement_Portal.Repository.StudentRepository;
+import com.K955.Placement_Portal.Repository.UserRepository;
+import com.K955.Placement_Portal.Security.JwtUtil;
 import com.K955.Placement_Portal.Service.ApplicationService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +32,8 @@ public class ApplicationServiceImpL implements ApplicationService {
     private final JobPostingRepository jobPostingRepository;
     private final ApplicationRepository applicationRepository;
     private final ApplicationMapper applicationMapper;
+    private final JwtUtil jwtUtil;
+    private final UserRepository userRepository;
 
     @Override
     public ApplicationResponse createApplication(Long userId, Long jobId) {
@@ -80,6 +86,8 @@ public class ApplicationServiceImpL implements ApplicationService {
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Application", applicationId.toString()));
 
+        updateApplicationStatusCheck(application);
+
         application.setApplicationStatus(request.applicationStatus());
         Application saved = applicationRepository.save(application);
 
@@ -90,6 +98,41 @@ public class ApplicationServiceImpL implements ApplicationService {
     public void withdrawApplication(Long applicationId) {
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Application", applicationId.toString()));
+        withdrawApplicationCheck(application);
         applicationRepository.delete(application);
     }
+
+    /// Util Methods
+
+    private void updateApplicationStatusCheck(Application application) {
+        Long userId = jwtUtil.getCurrentUserId();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", userId.toString()));
+
+        if(!user.getRole().equals(Role.COMPANY)) {
+            throw new BadRequestException("Students are not allowed to update Application.");
+        }
+
+        if(!application.getJobPosting().getCompany().getUser().getId().equals(userId)) {
+            throw new BadRequestException("Inaccessible Request!");
+        }
+    }
+
+    private void withdrawApplicationCheck(Application application) {
+        Long userId = jwtUtil.getCurrentUserId();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", userId.toString()));
+
+        if(!user.getRole().equals(Role.STUDENT)) {
+            throw new BadRequestException("Only Students can withdraw their Application.");
+        }
+
+        Student student = studentRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Student", userId.toString()));
+
+        if(!application.getStudent().getId().equals(userId)) {
+            throw new BadRequestException("Inaccessible Request!");
+        }
+    }
+
 }

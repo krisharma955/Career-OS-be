@@ -6,10 +6,12 @@ import com.K955.Placement_Portal.DTOs.JobPosting.UpdateJobPostingRequest;
 import com.K955.Placement_Portal.Entity.Company;
 import com.K955.Placement_Portal.Entity.JobPosting;
 import com.K955.Placement_Portal.Enums.JobPostingStatus;
+import com.K955.Placement_Portal.Exceptions.BadRequestException;
 import com.K955.Placement_Portal.Exceptions.ResourceNotFoundException;
 import com.K955.Placement_Portal.Mapper.JobPostingMapper;
 import com.K955.Placement_Portal.Repository.CompanyRepository;
 import com.K955.Placement_Portal.Repository.JobPostingRepository;
+import com.K955.Placement_Portal.Security.JwtUtil;
 import com.K955.Placement_Portal.Service.JobPostingService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +27,7 @@ public class JobPostingServiceImpL implements JobPostingService {
     private final CompanyRepository companyRepository;
     private final JobPostingRepository jobPostingRepository;
     private final JobPostingMapper jobPostingMapper;
+    private final JwtUtil jwtUtil;
 
     @Override
     public JobPostingResponse createJobPosting(Long userId, JobPostingRequest request) {
@@ -56,6 +59,8 @@ public class JobPostingServiceImpL implements JobPostingService {
         JobPosting jobPosting = jobPostingRepository.findById(jobId)
                 .orElseThrow(() -> new ResourceNotFoundException("JobPosting", jobId.toString()));
 
+        securityCheck(jobPosting);
+
         if(request.title() != null) jobPosting.setTitle(request.title());
         if(request.description() != null) jobPosting.setDescription(request.description());
         if(request.location() != null) jobPosting.setLocation(request.location());
@@ -75,6 +80,7 @@ public class JobPostingServiceImpL implements JobPostingService {
     public void closeJobPosting(Long jobId) {
         JobPosting jobPosting = jobPostingRepository.findById(jobId)
                 .orElseThrow(() -> new ResourceNotFoundException("JobPosting", jobId.toString()));
+        securityCheck(jobPosting);
         jobPosting.setJobPostingStatus(JobPostingStatus.CLOSE);
         jobPostingRepository.save(jobPosting);
     }
@@ -83,6 +89,18 @@ public class JobPostingServiceImpL implements JobPostingService {
     public void deleteJobPosting(Long jobId) {
         JobPosting jobPosting = jobPostingRepository.findById(jobId)
                 .orElseThrow(() -> new ResourceNotFoundException("JobPosting", jobId.toString()));
+        securityCheck(jobPosting);
         jobPostingRepository.delete(jobPosting);
     }
+    
+    /// Util Methods
+
+    private void securityCheck(JobPosting jobPosting) {
+        Long userId = jwtUtil.getCurrentUserId();
+
+        if(!jobPosting.getCompany().getUser().getId().equals(userId)) {
+            throw new BadRequestException("Inaccessible Request!");
+        }
+    }
+    
 }
