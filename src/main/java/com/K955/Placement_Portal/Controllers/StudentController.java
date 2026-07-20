@@ -3,6 +3,7 @@ package com.K955.Placement_Portal.Controllers;
 import com.K955.Placement_Portal.DTOs.Student.StudentProfileRequest;
 import com.K955.Placement_Portal.DTOs.Student.StudentProfileResponse;
 import com.K955.Placement_Portal.DTOs.Student.UpdateStudentRequest;
+import com.K955.Placement_Portal.DTOs.Student.fillStudentRequest;
 import com.K955.Placement_Portal.Security.JwtUtil;
 import com.K955.Placement_Portal.Service.StudentService;
 import jakarta.validation.Valid;
@@ -28,13 +29,19 @@ public class StudentController {
     @GetMapping("/profile")
     public ResponseEntity<StudentProfileResponse> getStudentProfile() {
         Long userId = jwtUtil.getCurrentUserId();
-        return ResponseEntity.ok(studentService.getStudentProfileById(userId));
+        return ResponseEntity.ok(studentService.getStudentProfile(userId));
     }
 
     @PatchMapping("/profile")
+    public ResponseEntity<StudentProfileResponse> fillStudentProfile(@Valid @RequestBody fillStudentRequest request) {
+        Long userId = jwtUtil.getCurrentUserId();
+        return ResponseEntity.ok(studentService.fillStudentProfile(userId, request));
+    }
+
+    @PatchMapping
     public ResponseEntity<StudentProfileResponse> updateStudentProfile(@Valid @RequestBody UpdateStudentRequest request) {
         Long userId = jwtUtil.getCurrentUserId();
-        return ResponseEntity.ok(studentService.updateStudentProfileById(userId, request));
+        return ResponseEntity.ok(studentService.updateStudentProfile(userId ,request));
     }
 
     @DeleteMapping("/profile")

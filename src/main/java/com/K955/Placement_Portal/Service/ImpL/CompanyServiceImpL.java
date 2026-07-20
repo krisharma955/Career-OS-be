@@ -3,6 +3,7 @@ package com.K955.Placement_Portal.Service.ImpL;
 import com.K955.Placement_Portal.DTOs.Company.CompanyProfileRequest;
 import com.K955.Placement_Portal.DTOs.Company.CompanyProfileResponse;
 import com.K955.Placement_Portal.DTOs.Company.UpdateCompanyRequest;
+import com.K955.Placement_Portal.DTOs.Company.fillCompanyRequest;
 import com.K955.Placement_Portal.Entity.Company;
 import com.K955.Placement_Portal.Entity.User;
 import com.K955.Placement_Portal.Exceptions.BadRequestException;
@@ -48,7 +49,7 @@ public class CompanyServiceImpL implements CompanyService {
     }
 
     @Override
-    public CompanyProfileResponse updateCompanyProfileById(Long userId, UpdateCompanyRequest request) {
+    public CompanyProfileResponse updateCompanyProfile(Long userId, UpdateCompanyRequest request) {
         Company company = companyRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Company", userId.toString()));
 
@@ -64,10 +65,27 @@ public class CompanyServiceImpL implements CompanyService {
     }
 
     @Override
+    public CompanyProfileResponse fillCompanyProfile(Long userId, fillCompanyRequest request) {
+        Company company = companyRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Company", userId.toString()));
+
+        company.setCompanyName(request.companyName());
+        company.setWebsite(request.website());
+        company.setIndustry(request.industry());
+        company.setDescription(request.description());
+        company.setLocation(request.location());
+
+        Company saved = companyRepository.save(company);
+
+        return companyMapper.toCompanyProfileResponse(saved);
+    }
+
+    @Override
     public void deleteCompanyProfileById(Long userId) {
         Company company = companyRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Company", userId.toString()));
 
         companyRepository.delete(company);
     }
+
 }
