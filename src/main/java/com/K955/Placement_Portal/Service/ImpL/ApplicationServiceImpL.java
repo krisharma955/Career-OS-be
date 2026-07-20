@@ -19,6 +19,8 @@ import com.K955.Placement_Portal.Security.JwtUtil;
 import com.K955.Placement_Portal.Service.ApplicationService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -68,17 +70,19 @@ public class ApplicationServiceImpL implements ApplicationService {
     }
 
     @Override
-    public List<ApplicationResponse> getApplicationsByStudent(Long userId) {
+    public Page<ApplicationResponse> getMyApplications(Long userId, Pageable pageable) {
         Student student = studentRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Student", userId.toString()));
-        List<Application> applicationList = applicationRepository.findByStudentId(student.getId());
-        return applicationMapper.toListOfApplicationResponse(applicationList);
+        return applicationRepository.findByStudentId(student.getId(), pageable)
+                .map(applicationMapper::toApplicationResponse);
     }
 
     @Override
-    public List<ApplicationResponse> getApplicationsByJob(Long jobId) {
-        List<Application> applicationList = applicationRepository.findByJobPostingId(jobId);
-        return applicationMapper.toListOfApplicationResponse(applicationList);
+    public Page<ApplicationResponse> getApplicationsByJob(Long jobId, Pageable pageable) {
+        JobPosting jobPosting = jobPostingRepository.findById(jobId)
+                .orElseThrow(() -> new ResourceNotFoundException("Job", jobId.toString()));
+        return applicationRepository.findByStudentId(jobPosting.getId(), pageable)
+                .map(applicationMapper::toApplicationResponse);
     }
 
     @Override
@@ -130,7 +134,7 @@ public class ApplicationServiceImpL implements ApplicationService {
         Student student = studentRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Student", userId.toString()));
 
-        if(!application.getStudent().getId().equals(userId)) {
+        if(!application.getStudent().getUser().getId().equals(userId)) {
             throw new BadRequestException("Inaccessible Request!");
         }
     }
