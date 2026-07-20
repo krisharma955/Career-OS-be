@@ -38,15 +38,12 @@ public class AtsReport {
     Integer formattingScore;
 
     @Builder.Default
-    @ElementCollection
     List<String> missingKeywords = new ArrayList<>();
 
     @Builder.Default
-    @ElementCollection
     List<String> suggestions = new ArrayList<>();
 
     @Builder.Default
-    @ElementCollection
     List<String> strengths = new ArrayList<>();
 
     @CreationTimestamp
