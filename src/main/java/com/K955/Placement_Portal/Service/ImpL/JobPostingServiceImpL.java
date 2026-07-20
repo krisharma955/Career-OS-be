@@ -3,21 +3,24 @@ package com.K955.Placement_Portal.Service.ImpL;
 import com.K955.Placement_Portal.DTOs.JobPosting.JobPostingRequest;
 import com.K955.Placement_Portal.DTOs.JobPosting.JobPostingResponse;
 import com.K955.Placement_Portal.DTOs.JobPosting.UpdateJobPostingRequest;
+import com.K955.Placement_Portal.DTOs.JobPosting.UpdateJobPostingStatus;
 import com.K955.Placement_Portal.Entity.Company;
 import com.K955.Placement_Portal.Entity.JobPosting;
 import com.K955.Placement_Portal.Enums.JobPostingStatus;
+import com.K955.Placement_Portal.Enums.JobType;
 import com.K955.Placement_Portal.Exceptions.BadRequestException;
 import com.K955.Placement_Portal.Exceptions.ResourceNotFoundException;
 import com.K955.Placement_Portal.Mapper.JobPostingMapper;
 import com.K955.Placement_Portal.Repository.CompanyRepository;
 import com.K955.Placement_Portal.Repository.JobPostingRepository;
+import com.K955.Placement_Portal.Repository.JobPostingSpecification;
 import com.K955.Placement_Portal.Security.JwtUtil;
 import com.K955.Placement_Portal.Service.JobPostingService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @Transactional
@@ -34,7 +37,18 @@ public class JobPostingServiceImpL implements JobPostingService {
         Company company = companyRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Company", userId.toString()));
 
-        JobPosting jobPosting = jobPostingMapper.toJobPosting(request);
+        JobPosting jobPosting = JobPosting.builder()
+                .company(company)
+                .title(request.title())
+                .description(request.description())
+                .location(request.location())
+                .minSalary(request.minSalary())
+                .maxSalary(request.maxSalary())
+                .jobType(request.jobType())
+                .requiredSkills(request.skills())
+                .openings(request.openings())
+                .deadline(request.deadline())
+                .build();
         jobPosting.setCompany(company);
         jobPostingRepository.save(jobPosting);
 
@@ -42,16 +56,16 @@ public class JobPostingServiceImpL implements JobPostingService {
     }
 
     @Override
-    public JobPostingResponse getJobPostingById(Long jobId) {
+    public JobPostingResponse getJobPosting(Long jobId) {
         JobPosting jobPosting = jobPostingRepository.findById(jobId)
                 .orElseThrow(() -> new ResourceNotFoundException("JobPosting", jobId.toString()));
         return jobPostingMapper.toJobPostingResponse(jobPosting);
     }
 
     @Override
-    public List<JobPostingResponse> getAllJobPostings() {
-        List<JobPosting> jobPostingList = jobPostingRepository.findAllByJobPostingStatus(JobPostingStatus.OPEN);
-        return jobPostingMapper.toListOfJobPostingResponse(jobPostingList);
+    public Page<JobPostingResponse> filterSearchJobPostings(String company, JobType jobType, JobPostingStatus jobPostingStatus, String search, Pageable pageable) {
+        var spec = JobPostingSpecification.filterBy(company, jobType, jobPostingStatus, search);
+        return jobPostingRepository.findAll(spec, pageable).map(jobPostingMapper::toJobPostingResponse);
     }
 
     @Override
@@ -77,12 +91,13 @@ public class JobPostingServiceImpL implements JobPostingService {
     }
 
     @Override
-    public void closeJobPosting(Long jobId) {
+    public JobPostingResponse updateJobPostingStatus(Long jobId, UpdateJobPostingStatus status) {
         JobPosting jobPosting = jobPostingRepository.findById(jobId)
                 .orElseThrow(() -> new ResourceNotFoundException("JobPosting", jobId.toString()));
         securityCheck(jobPosting);
-        jobPosting.setJobPostingStatus(JobPostingStatus.CLOSE);
-        jobPostingRepository.save(jobPosting);
+        jobPosting.setJobPostingStatus(status.jobPostingStatus());
+        JobPosting saved = jobPostingRepository.save(jobPosting);
+        return jobPostingMapper.toJobPostingResponse(saved);
     }
 
     @Override
@@ -92,7 +107,7 @@ public class JobPostingServiceImpL implements JobPostingService {
         securityCheck(jobPosting);
         jobPostingRepository.delete(jobPosting);
     }
-    
+
     /// Util Methods
 
     private void securityCheck(JobPosting jobPosting) {

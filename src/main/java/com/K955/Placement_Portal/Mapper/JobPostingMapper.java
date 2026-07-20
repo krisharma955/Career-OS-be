@@ -11,14 +11,6 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface JobPostingMapper {
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "company", ignore = true)
-    @Mapping(target = "jobPostingStatus", ignore = true)
-    @Mapping(target = "postedAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(source = "skills", target = "requiredSkills")
-    JobPosting toJobPosting(JobPostingRequest request);
-
     @Mapping(source = "company.companyName", target = "companyName")
     @Mapping(source = "company.location", target = "companyLocation")
     JobPostingResponse toJobPostingResponse(JobPosting jobPosting);
