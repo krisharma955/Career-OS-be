@@ -1,17 +1,17 @@
 package com.K955.Placement_Portal.Repository;
 
 import com.K955.Placement_Portal.Entity.Application;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 @Repository
 public interface ApplicationRepository extends JpaRepository<Application, Long> {
 
-    List<Application> findByStudentId(Long studentId);
+    Page<Application> findByStudentId(Long studentId, Pageable pageable);
 
-    List<Application> findByJobPostingId(Long jobId);
+    Page<Application> findByJobPostingId(Long jobId, Pageable pageable);
 
     Boolean existsByStudentIdAndJobPostingId(Long studentId, Long jobId);
 

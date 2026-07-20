@@ -3,6 +3,8 @@ package com.K955.Placement_Portal.Service;
 import com.K955.Placement_Portal.DTOs.Application.ApplicationResponse;
 import com.K955.Placement_Portal.DTOs.Application.UpdateApplicationStatusRequest;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -11,9 +13,9 @@ public interface ApplicationService {
 
     ApplicationResponse getApplicationById(Long applicationId);
 
-    List<ApplicationResponse> getApplicationsByStudent(Long userId);
+    Page<ApplicationResponse> getMyApplications(Long userId, Pageable pageable);
 
-    List<ApplicationResponse> getApplicationsByJob(Long jobId);
+    Page<ApplicationResponse> getApplicationsByJob(Long jobId, Pageable pageable);
 
     ApplicationResponse updateApplicationStatus(Long applicationId, @Valid UpdateApplicationStatusRequest request);
 
