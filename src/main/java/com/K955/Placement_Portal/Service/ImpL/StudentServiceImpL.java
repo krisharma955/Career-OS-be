@@ -3,6 +3,7 @@ package com.K955.Placement_Portal.Service.ImpL;
 import com.K955.Placement_Portal.DTOs.Student.StudentProfileRequest;
 import com.K955.Placement_Portal.DTOs.Student.StudentProfileResponse;
 import com.K955.Placement_Portal.DTOs.Student.UpdateStudentRequest;
+import com.K955.Placement_Portal.DTOs.Student.fillStudentRequest;
 import com.K955.Placement_Portal.Entity.Student;
 import com.K955.Placement_Portal.Entity.User;
 import com.K955.Placement_Portal.Exceptions.BadRequestException;
@@ -41,7 +42,7 @@ public class StudentServiceImpL implements StudentService {
     }
 
     @Override
-    public StudentProfileResponse getStudentProfileById(Long userId) {
+    public StudentProfileResponse getStudentProfile(Long userId) {
         Student student = studentRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Student", userId.toString()));
 
@@ -49,7 +50,25 @@ public class StudentServiceImpL implements StudentService {
     }
 
     @Override
-    public StudentProfileResponse updateStudentProfileById(Long userId, UpdateStudentRequest request) {
+    public StudentProfileResponse fillStudentProfile(Long userId, fillStudentRequest request) {
+        Student student = studentRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Student", userId.toString()));
+
+        student.setPhoneNumber(request.phoneNumber());
+        student.setCollege(request.college());
+        student.setDegree(request.degree());
+        student.setBranch(request.branch());
+        student.setGraduationYear(request.graduationYear());
+        student.setCgpa(request.cgpa());
+        if(request.skills() != null) student.setSkills(request.skills());
+
+        Student saved = studentRepository.save(student);
+
+        return studentMapper.toStudentProfileResponse(saved);
+    }
+
+    @Override
+    public StudentProfileResponse updateStudentProfile(Long userId, UpdateStudentRequest request) {
         Student student = studentRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Student", userId.toString()));
 
@@ -73,4 +92,5 @@ public class StudentServiceImpL implements StudentService {
 
         studentRepository.delete(student);
     }
+
 }

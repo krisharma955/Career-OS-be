@@ -3,6 +3,7 @@ package com.K955.Placement_Portal.Controllers;
 import com.K955.Placement_Portal.DTOs.Company.CompanyProfileRequest;
 import com.K955.Placement_Portal.DTOs.Company.CompanyProfileResponse;
 import com.K955.Placement_Portal.DTOs.Company.UpdateCompanyRequest;
+import com.K955.Placement_Portal.DTOs.Company.fillCompanyRequest;
 import com.K955.Placement_Portal.Security.JwtUtil;
 import com.K955.Placement_Portal.Service.CompanyService;
 import jakarta.validation.Valid;
@@ -31,10 +32,16 @@ public class CompanyController {
         return ResponseEntity.ok(companyService.getCompanyProfileById(userId));
     }
 
-    @PatchMapping("/profile")
+    @PatchMapping
     public ResponseEntity<CompanyProfileResponse> updateCompanyProfile(@Valid @RequestBody UpdateCompanyRequest request) {
         Long userId = jwtUtil.getCurrentUserId();
-        return ResponseEntity.ok(companyService.updateCompanyProfileById(userId, request));
+        return ResponseEntity.ok(companyService.updateCompanyProfile(userId, request));
+    }
+
+    @PatchMapping("/profile")
+    public ResponseEntity<CompanyProfileResponse> fillCompanyProfile(@Valid @RequestBody fillCompanyRequest request) {
+        Long userId = jwtUtil.getCurrentUserId();
+        return ResponseEntity.ok(companyService.fillCompanyProfile(userId, request));
     }
 
     @DeleteMapping("/profile")
