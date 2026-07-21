@@ -36,15 +36,17 @@ public class ResumeController {
     }
 
     @GetMapping("/download")
-    public ResponseEntity<Resource> downloadResume() throws MalformedURLException {
+    public ResponseEntity<Resource> downloadResume() throws IOException {
         Long userId = jwtUtil.getCurrentUserId();
-        Resource resource = resumeService.downloadResume(userId);
+
         ResumeResponse metaData = resumeService.getResumeMetaData(userId);
+        Resource resource = resumeService.downloadResume(userId);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION,
-                "attachment; filename=\"" + metaData.fileName() + "\"")
+                        "attachment; filename=\"" + metaData.fileName() + "\"")
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .contentLength(resource.contentLength())
                 .body(resource);
     }
 
