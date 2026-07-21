@@ -33,10 +33,6 @@ jwt:
   refresh-token:
     expiration: 604800000
 
-app:
-  file:
-    upload-dir: ${FILE_UPLOAD_DIR}
-
   servlet:
     multipart:
       max-file-size: 5MB
@@ -54,3 +50,9 @@ logging:
 
 server:
   port: ${PORT:8080}
+
+minio:
+  url: ${MINIO_ENDPOINT}
+  access-key: ${MINIO_ACCESS_KEY}
+  secret-key: ${MINIO_SECRET_KEY}
+  bucket-name: ${MINIO_BUCKET_NAME}
