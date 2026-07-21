@@ -9,7 +9,7 @@ import com.K955.Placement_Portal.Mapper.ResumeMapper;
 import com.K955.Placement_Portal.Repository.ResumeRepository;
 import com.K955.Placement_Portal.Repository.StudentRepository;
 import com.K955.Placement_Portal.Service.ResumeService;
-import com.K955.Placement_Portal.Util.FileStorageUtil;
+import com.K955.Placement_Portal.Util.MinioFileStorageUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -25,7 +25,7 @@ public class ResumeServiceImpL implements ResumeService {
 
     private final ResumeRepository resumeRepository;
     private final StudentRepository studentRepository;
-    private final FileStorageUtil fileStorageUtil;
+    private final MinioFileStorageUtil minioFileStorageUtil;
     private final ResumeMapper resumeMapper;
 
     @Override
@@ -45,10 +45,10 @@ public class ResumeServiceImpL implements ResumeService {
         Optional<Resume> existingResume = resumeRepository.findByStudentUserId(userId);
 
         if(existingResume.isPresent()) {
-            fileStorageUtil.deleteFile(existingResume.get().getFilePath());
+            minioFileStorageUtil.deleteFile(existingResume.get().getFilePath());
 
             Resume resume = existingResume.get();
-            String filePath = fileStorageUtil.saveFile(file, userId);
+            String filePath = minioFileStorageUtil.saveFile(file, userId);
             resume.setFileName(file.getOriginalFilename());
             resume.setFilePath(filePath);
             resume.setFileType(contentType);
@@ -58,7 +58,7 @@ public class ResumeServiceImpL implements ResumeService {
             return resumeMapper.toResumeResponse(saved);
         }
         else {
-            String filePath = fileStorageUtil.saveFile(file, userId);
+            String filePath = minioFileStorageUtil.saveFile(file, userId);
 
             Resume resume = Resume.builder()
                     .student(student)
@@ -83,11 +83,10 @@ public class ResumeServiceImpL implements ResumeService {
     }
 
     @Override
-    public Resource downloadResume(Long userId) throws MalformedURLException {
+    public String downloadResume(Long userId) throws MalformedURLException {
         Resume resume = resumeRepository.findByStudentUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Resume", userId.toString()));
 
-
-        return fileStorageUtil.loadFile(resume.getFilePath());
+        return minioFileStorageUtil.getPresignedDownloadUrl(resume.getFilePath());
     }
 }

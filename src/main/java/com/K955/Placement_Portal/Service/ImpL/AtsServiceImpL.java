@@ -44,10 +44,6 @@ public class AtsServiceImpL implements AtsService {
 
         String resumeText = pdfTextExtractor.extractText(resume.getFilePath());
 
-        System.out.println("========== RESUME ==========");
-        System.out.println(resumeText);
-        System.out.println("============================");
-
         String response = chatClient.prompt()
                 .user(resumeText)
                 .call()
