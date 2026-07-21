@@ -12,5 +12,5 @@ public interface ResumeService {
 
     ResumeResponse getResumeMetaData(Long userId);
 
-    Resource downloadResume(Long userId) throws MalformedURLException;
+    String downloadResume(Long userId) throws MalformedURLException;
 }

@@ -36,18 +36,10 @@ public class ResumeController {
     }
 
     @GetMapping("/download")
-    public ResponseEntity<Resource> downloadResume() throws IOException {
+    public ResponseEntity<String> downloadResume() throws IOException {
         Long userId = jwtUtil.getCurrentUserId();
-
-        ResumeResponse metaData = resumeService.getResumeMetaData(userId);
-        Resource resource = resumeService.downloadResume(userId);
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + metaData.fileName() + "\"")
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .contentLength(resource.contentLength())
-                .body(resource);
+        String url = resumeService.downloadResume(userId);
+        return ResponseEntity.ok(url);
     }
 
 }
