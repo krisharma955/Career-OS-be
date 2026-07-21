@@ -7,6 +7,7 @@ import com.K955.Placement_Portal.Entity.Student;
 import com.K955.Placement_Portal.Exceptions.ResourceNotFoundException;
 import com.K955.Placement_Portal.Mapper.AtsReportMapper;
 import com.K955.Placement_Portal.Repository.AtsReportRepository;
+import com.K955.Placement_Portal.Repository.AtsReportSpecification;
 import com.K955.Placement_Portal.Repository.ResumeRepository;
 import com.K955.Placement_Portal.Repository.StudentRepository;
 import com.K955.Placement_Portal.Service.AtsService;
@@ -14,6 +15,8 @@ import com.K955.Placement_Portal.Util.PdfTextExtractor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -41,6 +44,10 @@ public class AtsServiceImpL implements AtsService {
 
         String resumeText = pdfTextExtractor.extractText(resume.getFilePath());
 
+        System.out.println("========== RESUME ==========");
+        System.out.println(resumeText);
+        System.out.println("============================");
+
         String response = chatClient.prompt()
                 .user(resumeText)
                 .call()
@@ -66,16 +73,9 @@ public class AtsServiceImpL implements AtsService {
     }
 
     @Override
-    public List<AtsReportResponse> getAtsHistory(Long userId) {
-        Student student = studentRepository.findByUserId(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Student", userId.toString()));
-
-        Resume resume = resumeRepository.findByStudentUserId(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Resume", student.getId().toString()));
-
-        List<AtsReport> atsReportList = atsReportRepository.findByResumeId(resume.getId());
-
-        return atsReportMapper.toListOfAtsReportResponse(atsReportList);
+    public Page<AtsReportResponse> getAtsHistory(Long userId, String search, Pageable pageable) {
+        var spec = AtsReportSpecification.searchReport(search);
+        return atsReportRepository.findAll(spec, pageable).map(atsReportMapper::toAtsReportResponse);
     }
 
     @Override

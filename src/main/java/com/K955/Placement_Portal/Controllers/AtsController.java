@@ -4,6 +4,10 @@ import com.K955.Placement_Portal.DTOs.Resume.AtsReportResponse;
 import com.K955.Placement_Portal.Security.JwtUtil;
 import com.K955.Placement_Portal.Service.AtsService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,9 +30,12 @@ public class AtsController {
     }
 
     @GetMapping("/history")
-    public ResponseEntity<List<AtsReportResponse>> getAtsHistory() {
+    public ResponseEntity<Page<AtsReportResponse>> getAtsHistory(
+            @RequestParam(required = false) String search,
+            @PageableDefault(size = 5, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
         Long userId = jwtUtil.getCurrentUserId();
-        return ResponseEntity.ok(atsService.getAtsHistory(userId));
+        return ResponseEntity.ok(atsService.getAtsHistory(userId, search, pageable));
     }
 
     @GetMapping("/{reportId}")
