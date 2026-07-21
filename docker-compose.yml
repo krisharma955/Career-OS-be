@@ -14,5 +14,15 @@ services:
     volumes:
       - minio_data:/data
 
+  app:
+    build: .
+    container_name: careeros-backend
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    depends_on:
+      - minio
+
 volumes:
   minio_data:
