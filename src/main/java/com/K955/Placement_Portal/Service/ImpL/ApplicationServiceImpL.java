@@ -81,7 +81,13 @@ public class ApplicationServiceImpL implements ApplicationService {
     public Page<ApplicationResponse> getApplicationsByJob(Long jobId, Pageable pageable) {
         JobPosting jobPosting = jobPostingRepository.findById(jobId)
                 .orElseThrow(() -> new ResourceNotFoundException("Job", jobId.toString()));
-        return applicationRepository.findByStudentId(jobPosting.getId(), pageable)
+
+        Long currentUserId = jwtUtil.getCurrentUserId();
+        if (!jobPosting.getCompany().getUser().getId().equals(currentUserId)) {
+            throw new org.springframework.security.access.AccessDeniedException("You are not authorized to view applications for this job.");
+        }
+
+        return applicationRepository.findByJobPostingId(jobPosting.getId(), pageable)
                 .map(applicationMapper::toApplicationResponse);
     }
 
