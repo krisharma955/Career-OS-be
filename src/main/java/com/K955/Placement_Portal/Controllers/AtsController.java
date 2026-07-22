@@ -40,7 +40,8 @@ public class AtsController {
 
     @GetMapping("/{reportId}")
     public ResponseEntity<AtsReportResponse> getAtsReport(@PathVariable Long reportId) {
-        return ResponseEntity.ok(atsService.getAtsReport(reportId));
+        Long userId = jwtUtil.getCurrentUserId();
+        return ResponseEntity.ok(atsService.getAtsReport(reportId, userId));
     }
 
 }

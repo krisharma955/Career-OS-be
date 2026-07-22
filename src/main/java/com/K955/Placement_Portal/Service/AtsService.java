@@ -12,5 +12,5 @@ public interface AtsService {
 
     Page<AtsReportResponse> getAtsHistory(Long userId, String search, Pageable pageable);
 
-    AtsReportResponse getAtsReport(Long reportId);
+    AtsReportResponse getAtsReport(Long reportId, Long userId);
 }

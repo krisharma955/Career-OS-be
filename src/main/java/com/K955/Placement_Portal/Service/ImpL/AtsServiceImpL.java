@@ -78,14 +78,18 @@ public class AtsServiceImpL implements AtsService {
 
     @Override
     public Page<AtsReportResponse> getAtsHistory(Long userId, String search, Pageable pageable) {
-        var spec = AtsReportSpecification.searchReport(search);
+        var spec = AtsReportSpecification.searchReport(search, userId);
         return atsReportRepository.findAll(spec, pageable).map(atsReportMapper::toAtsReportResponse);
     }
 
     @Override
-    public AtsReportResponse getAtsReport(Long reportId) {
+    public AtsReportResponse getAtsReport(Long reportId, Long userId) {
         AtsReport atsReport = atsReportRepository.findById(reportId)
                 .orElseThrow(() -> new ResourceNotFoundException("ATS Report", reportId.toString()));
+
+        if (!atsReport.getResume().getStudent().getUser().getId().equals(userId)) {
+            throw new org.springframework.security.access.AccessDeniedException("You are not authorized to view this report");
+        }
 
         return atsReportMapper.toAtsReportResponse(atsReport);
     }

@@ -10,10 +10,13 @@ import java.util.List;
 public class AtsReportSpecification {
 
     public static Specification<AtsReport> searchReport(
-            String search
+            String search,
+            Long userId
     ) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+
+            predicates.add(cb.equal(root.get("resume").get("student").get("user").get("id"), userId));
 
             if (search != null && !search.isBlank()) {
                 predicates.add(cb.like(cb.lower(root.get("resume").get("fileName")), "%" + search.toLowerCase() + "%"));
