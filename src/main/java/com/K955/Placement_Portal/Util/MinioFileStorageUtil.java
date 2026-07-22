@@ -100,4 +100,13 @@ public class MinioFileStorageUtil {
         }
     }
 
+    public InputStream getFileStream(String objectKey) throws Exception {
+        return minioClient.getObject(
+                GetObjectArgs.builder()
+                        .bucket(bucketName)
+                        .object(objectKey)
+                        .build()
+        );
+    }
+
 }

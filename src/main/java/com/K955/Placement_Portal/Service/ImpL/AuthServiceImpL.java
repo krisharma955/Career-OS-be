@@ -69,7 +69,6 @@ public class AuthServiceImpL implements AuthService {
         else if(user.getRole().equals(Role.COMPANY)) {
             Company company = Company.builder()
                     .user(user)
-                    .companyName("")
                     .build();
             companyRepository.save(company);
         }

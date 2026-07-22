@@ -11,6 +11,7 @@ import com.K955.Placement_Portal.Repository.AtsReportSpecification;
 import com.K955.Placement_Portal.Repository.ResumeRepository;
 import com.K955.Placement_Portal.Repository.StudentRepository;
 import com.K955.Placement_Portal.Service.AtsService;
+import com.K955.Placement_Portal.Util.MinioFileStorageUtil;
 import com.K955.Placement_Portal.Util.PdfTextExtractor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 @Service
@@ -33,6 +35,7 @@ public class AtsServiceImpL implements AtsService {
     private final ChatClient chatClient;
     private final ObjectMapper objectMapper;
     private final AtsReportMapper atsReportMapper;
+    private final MinioFileStorageUtil minioFileStorageUtil;
 
     @Override
     public AtsReportResponse analyzeResume(Long userId) throws IOException {
@@ -42,7 +45,12 @@ public class AtsServiceImpL implements AtsService {
         Resume resume = resumeRepository.findByStudentUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Resume", student.getId().toString()));
 
-        String resumeText = pdfTextExtractor.extractText(resume.getFilePath());
+        String resumeText;
+        try (InputStream resumeStream = minioFileStorageUtil.getFileStream(resume.getFilePath())) {
+            resumeText = pdfTextExtractor.extractText(resumeStream);
+        } catch (Exception e) {
+            throw new IOException("Failed to read resume from storage: " + e.getMessage(), e);
+        }
 
         String response = chatClient.prompt()
                 .user(resumeText)

@@ -36,10 +36,16 @@ public class ResumeController {
     }
 
     @GetMapping("/download")
-    public ResponseEntity<String> downloadResume() throws IOException {
+    public ResponseEntity<java.util.Map<String, String>> downloadResume() throws IOException {
         Long userId = jwtUtil.getCurrentUserId();
         String url = resumeService.downloadResume(userId);
-        return ResponseEntity.ok(url);
+        return ResponseEntity.ok(java.util.Map.of("url", url));
+    }
+
+    @GetMapping("/download/{userId}")
+    public ResponseEntity<java.util.Map<String, String>> downloadResumeByUserId(@PathVariable Long userId) throws IOException {
+        String url = resumeService.downloadResume(userId);
+        return ResponseEntity.ok(java.util.Map.of("url", url));
     }
 
 }

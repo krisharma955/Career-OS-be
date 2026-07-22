@@ -62,17 +62,17 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
+
         configuration.setAllowedOrigins(List.of(
-                "http://localhost:3000",
-                "https://smart-placement-portal-frontend.vercel.app",
-                "https://smart-placement-portal-frontend-9z8xhgtkb.vercel.app"
+                "http://localhost:5173",
+                "http://localhost:5174"
         ));
         configuration.setAllowedMethods(List.of(
                 "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"
@@ -80,10 +80,8 @@ public class WebSecurityConfig {
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
 
-        UrlBasedCorsConfigurationSource source =
-                new UrlBasedCorsConfigurationSource();
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-
 }

@@ -25,7 +25,7 @@ public class Company {
     @JoinColumn(name = "user_id")
     User user;
 
-    @Column(nullable = false, unique = true)
+    @Column(unique = true)
     String companyName;
 
     String website;

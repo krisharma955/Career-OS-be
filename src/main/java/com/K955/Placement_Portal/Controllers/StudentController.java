@@ -32,6 +32,11 @@ public class StudentController {
         return ResponseEntity.ok(studentService.getStudentProfile(userId));
     }
 
+    @GetMapping("/profile/{userId}")
+    public ResponseEntity<StudentProfileResponse> getStudentProfileById(@PathVariable Long userId) {
+        return ResponseEntity.ok(studentService.getStudentProfile(userId));
+    }
+
     @PatchMapping("/profile")
     public ResponseEntity<StudentProfileResponse> fillStudentProfile(@Valid @RequestBody fillStudentRequest request) {
         Long userId = jwtUtil.getCurrentUserId();

@@ -15,6 +15,7 @@ public interface ApplicationMapper {
     @Mapping(source = "jobPosting.title", target = "jobTitle")
     @Mapping(source = "jobPosting.company.companyName", target = "companyName")
     @Mapping(source = "jobPosting.jobType", target = "jobType")
+    @Mapping(source = "student.user.id", target = "studentId")
     ApplicationResponse toApplicationResponse(Application application);
 
     List<ApplicationResponse> toListOfApplicationResponse(List<Application> applicationList);

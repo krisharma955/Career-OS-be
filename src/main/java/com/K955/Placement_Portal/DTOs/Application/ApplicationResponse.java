@@ -13,6 +13,7 @@ public record ApplicationResponse(
         String studentEmail,
         String jobTitle,
         String companyName,
-        JobType jobType
+        JobType jobType,
+        Long studentId
 ) {
 }
